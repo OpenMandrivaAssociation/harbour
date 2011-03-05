@@ -1,5 +1,5 @@
 #
-# $Id: harbour.spec 9368 2008-09-13 07:44:44Z vszakats $
+# $Id: harbour.spec 13372 2009-12-22 21:00:36Z vszakats $
 #
 
 # ---------------------------------------------------------------
@@ -7,27 +7,8 @@
 # Dave Pearson <davep@davep.org>
 # Harbour RPM spec file
 #
-# See doc/license.txt for licensing terms.
+# See COPYING for licensing terms.
 # ---------------------------------------------------------------
-
-######################################################################
-# Conditional build:
-# --with static      - link all binaries with static libs
-# --with mysql       - build hbmysql lib
-# --with pgsql       - build hbpgsql lib 
-# --with gd          - build hbgd lib 
-# --with allegro     - build GTALLEG - Allegro based GT driver
-# --with ads         - build rddads RDD
-# --with odbc        - build hbodbc lib
-# --with curl        - build hbcurl lib
-# --with hbhpdf      - build hbhpdf lib
-# --without nf       - do not build nanforum lib
-# --without gpllib   - do not build libs which needs GPL 3-rd party code
-# --without x11      - do not build GTXWC
-# --without gpm      - build GTTRM, GTSLN and GTCRS without GPM support
-# --without gtcrs    - do not build GTCRS
-# --without gtsln    - do not build GTSLN
-######################################################################
 
 ######################################################################
 ## Definitions.
@@ -46,6 +27,8 @@
 %if "%{platform}" == ""
 %define platform %(release=$(rpm -q --queryformat='%{VERSION}' suse-release 2>/dev/null) && echo "sus$release"|tr -d ".")
 %if "%{platform}" == ""
+%define platform %(release=$(rpm -q --queryformat='%{VERSION}' openSUSE-release 2>/dev/null) && echo "sus$release"|tr -d ".")
+%if "%{platform}" == ""
 %define platform %(release=$(rpm -q --queryformat='%{VERSION}' conectiva-release 2>/dev/null) && echo "cl$release"|tr -d ".")
 %if "%{platform}" == ""
 %define platform %(release=$(rpm -q --queryformat='%{VERSION}' aurox-release 2>/dev/null) && echo "aur$release"|tr -d ".")
@@ -58,30 +41,31 @@
 %endif
 %endif
 %endif
+%endif
 
 
 %define name     harbour
 %define dname    Harbour
-%define version  1.0.1
+%define version  2.0.0
 %define releasen 0
 %define hb_pref  hb
-%define hb_arch  export HB_ARCHITECTURE=linux
+%define hb_etcdir /etc/%{name}
+%define hb_plat  export HB_PLATFORM=linux
 %define hb_cc    export HB_COMPILER=gcc
-%define hb_cflag export C_USR="-O3 -DHB_FM_STATISTICS_OFF"
-%define hb_lflag export L_USR="${CC_L_USR} %{?_with_static:-static}"
-%define hb_mt    export HB_MT=no
-%define hb_gt    export HB_GT_LIB=gttrm
-%define hb_defgt export HB_GT_DEFAULT="${HB_GT_DEFAULT}"
-%define hb_gpm   export HB_GPM_MOUSE=%{!?_without_gpm:yes}
-%define hb_crs   export HB_WITHOUT_GTCRS=%{?_without_gtcrs:yes}
-%define hb_sln   export HB_WITHOUT_GTSLN=%{?_without_gtsln:yes}
-%define hb_x11   export HB_WITHOUT_X11=%{?_without_x11:yes}
+%define hb_cflag export HB_USER_CFLAGS=
+%define hb_lflag export HB_USER_LDFLAGS="${CC_HB_USER_LDFLAGS} %{?_with_static:-static}"
+%define hb_gpm   export HB_WITH_GPM=%{!?_without_gpm:yes}%{?_without_gpm:no}
+%define hb_crs   export HB_WITH_CURSES=%{!?_without_curses:yes}%{?_without_curses:no}
+%define hb_sln   export HB_WITH_SLANG=%{!?_without_slang:yes}%{?_without_slang:no}
+%define hb_x11   export HB_WITH_X11=%{!?_without_x11:yes}%{?_without_x11:no}
+%define hb_local export HB_WITH_ZLIB=%{?_with_localzlib:local} ; export HB_WITH_PCRE=%{?_with_localpcre:local}
 %define hb_bdir  export HB_BIN_INSTALL=%{_bindir}
 %define hb_idir  export HB_INC_INSTALL=%{_includedir}/%{name}
 %define hb_ldir  export HB_LIB_INSTALL=%{_libdir}/%{name}
-%define hb_cmrc  export HB_COMMERCE=%{?_without_gpllib:yes}
-%define hb_ctrb  export HB_CONTRIBLIBS="hbbmcdx hbbtree hbclipsm hbct hbgt hbmisc hbmsql hbmzip hbsqlit3 hbtip hbtpathy hbvpdf hbziparc xhb %{!?_without_nf:hbnf} %{?_with_odbc:hbodbc} %{?_with_curl:hbcurl} %{?_with_hbhpdf:hbhpdf} %{?_with_ads:rddads} %{?_with_gd:hbgd} %{?_with_pgsql:hbpgsql} %{?_with_mysql:hbmysql} %{?_with_allegro:gtalleg}"
-%define hb_env   %{hb_arch} ; %{hb_cc} ; %{hb_cflag} ; %{hb_lflag} ; %{hb_mt} ; %{hb_gt} ; %{hb_defgt} ; %{hb_gpm} ; %{hb_crs} ; %{hb_sln} ; %{hb_x11} ; %{hb_bdir} ; %{hb_idir} ; %{hb_ldir} ; %{hb_ctrb} ; %{hb_cmrc}
+%define hb_edir  export HB_ETC_INSTALL=%{hb_etcdir}
+%define hb_cmrc  export HB_BUILD_NOGPLLIB=%{?_without_gpllib:yes}
+%define hb_ctrb  export HB_CONTRIBLIBS="hbbmcdx hbbtree hbclipsm hbct hbgt hbmisc hbmzip hbnetio hbtip hbtpathy hbhpdf hbsms hbziparc xhb rddsql hbnf %{?_with_odbc:hbodbc} %{?_with_curl:hbcurl} %{?_with_ads:rddads} %{?_with_gd:hbgd} %{?_with_pgsql:hbpgsql} %{?_with_mysql:hbmysql} %{?_with_firebird:hbfbird} %{?_with_allegro:gtalleg} %{?_with_qt:hbqt hbxbp}"
+%define hb_env   %{hb_plat} ; %{hb_cc} ; %{hb_cflag} ; %{hb_lflag} ; %{hb_gpm} ; %{hb_crs} ; %{hb_sln} ; %{hb_x11} ; %{hb_local} ; %{hb_bdir} ; %{hb_idir} ; %{hb_ldir} ; %{hb_edir} ; %{hb_ctrb} ; %{hb_cmrc}
 %define hb_host  www.harbour-project.org
 %define readme   README.RPM
 ######################################################################
@@ -94,14 +78,14 @@ Summary(ru):    Свободный компилятор, совместимый 
 Summary(hu):    Szabad szoftver Clipper kompatibilis fordМtС
 Name:           %{name}
 Version:        %{version}
-Release:        %mkrel 1
+Release:        %{releasen}%{platform}
 License:        GPL (plus exception)
 Group:          Development/Languages
 Vendor:         %{hb_host}
 URL:            http://%{hb_host}/
 Source:         %{name}-%{version}.tar.bz2
 Packager:       PrzemysЁaw Czerpak <druzus@polbox.com> Luiz Rafael Culik Guimaraes <culikr@uol.com.br>
-BuildPrereq:    gcc binutils bash %{!?_without_gtcrs: ncurses-devel} %{!?_without_gpm: gpm-devel}
+BuildPrereq:    gcc binutils bash %{!?_without_curses: ncurses-devel} %{!?_without_gpm: gpm-devel}
 Requires:       gcc binutils bash sh-utils %{name}-lib = %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       %{name} harbour
 BuildRoot:      /tmp/%{name}-%{version}-root
@@ -119,7 +103,7 @@ this RPM distribution.
 %description -l pl
 %{dname} to kompatybilny z jЙzykiem CA-Cl*pper kompilator rozwijany na
 wielu rС©nych platformach. Ten pakiet zawiera kompilator, preprocesor,
-zbiory nagЁСwkowe, wirtualn╠ maszynЙ oraz dokumentacjЙ.
+zbiory nagЁСwkowe, wirtualn+ maszynЙ oraz dokumentacjЙ.
 
 %description -l pt_BR
 %{dname} И um compilador Clipper compativel para multiplas plataformas.
@@ -132,8 +116,8 @@ uma maquina virtual e documentaГЦo.
 машину и документацию.
 
 %description -l hu
-%{dname} egy tЖbb platformon is mШkЖdУ CA-Cl*pper kompatibilis 
-fordМtСprogram. A csomag rИsze a fordМtС maga, az elУfordМtС, fejlИc 
+%{dname} egy tЖbb platformon is mШkЖdУ CA-Cl*pper kompatibilis
+fordМtСprogram. A csomag rИsze a fordМtС maga, az elУfordМtС, fejlИc
 АllomАnyok, a virtuАlis gИp Иs fЭggvИnykЖnyvtАrak, valamint a dokumentАciС.
 
 ######################################################################
@@ -170,7 +154,7 @@ linkados dinamicamente.
 
 %description -l hu lib
 A(z) %{dname} egy Clipper kompatibilis fordМtСprogram.
-Ez a csomag biztosМtja a dinamikusan szerkesztett %{dname} 
+Ez a csomag biztosМtja a dinamikusan szerkesztett %{dname}
 programokhoz szЭksИges megosztott (dinamikus) futtatСkЖnyvtАrakat.
 
 ######################################################################
@@ -207,7 +191,7 @@ dos os programas
 
 %description -l hu lib
 A(z) %{dname} egy Clipper kompatibilis fordМtСprogram.
-Ez a csomag biztosМtja a statikusan szerkesztett %{dname} 
+Ez a csomag biztosМtja a statikusan szerkesztett %{dname}
 programokhoz szЭksИges statikus futtatСkЖnyvtАrakat.
 
 
@@ -240,7 +224,7 @@ dos programas.
 
 %description -l hu lib
 A(z) %{dname} egy Clipper kompatibilis fordМtСprogram.
-Ez a csomag kiegИszМtУ (contrib) kЖnyvtАrakat biztosМt 
+Ez a csomag kiegИszМtУ (contrib) kЖnyvtАrakat biztosМt
 statikus szerkesztИshez.
 
 ## odbc library
@@ -256,7 +240,7 @@ statikus szerkesztИshez.
 
 %{?_with_odbc:%description -l pl odbc}
 %{?_with_odbc:%{dname} to kompatybilny z jЙzykiem CA-Cl*pper kompilator.}
-%{?_with_odbc:Ten pakiet udostЙpnia statyczn╠ biliotekЙ ODBC dla kompilatora %{dname}.}
+%{?_with_odbc:Ten pakiet udostЙpnia statyczn+ biliotekЙ ODBC dla kompilatora %{dname}.}
 
 ## CURL library
 %{?_with_curl:%package curl}
@@ -271,22 +255,7 @@ statikus szerkesztИshez.
 
 %{?_with_curl:%description -l pl curl}
 %{?_with_curl:%{dname} to kompatybilny z jЙzykiem CA-Cl*pper kompilator.}
-%{?_with_curl:Ten pakiet udostЙpnia statyczn╠ biliotekЙ CURL dla kompilatora %{dname}.}
-
-## hbhpdf library
-%{?_with_hbhpdf:%package hbhpdf}
-%{?_with_hbhpdf:Summary:        hbhpdf libarary for %{dname} compiler}
-%{?_with_hbhpdf:Summary(pl):    Bilioteka hbhpdf dla kompilatora %{dname}}
-%{?_with_hbhpdf:Group:          Development/Languages}
-%{?_with_hbhpdf:Requires:       %{name} = %{?epoch:%{epoch}:}%{version}-%{release}}
-
-%{?_with_hbhpdf:%description hbhpdf}
-%{?_with_hbhpdf:%{dname} is a Clipper compatible compiler.}
-%{?_with_hbhpdf:This package provides %{dname} hbhpdf library for program linking.}
-
-%{?_with_hbhpdf:%description -l pl hbhpdf}
-%{?_with_hbhpdf:%{dname} to kompatybilny z jЙzykiem CA-Cl*pper kompilator.}
-%{?_with_hbhpdf:Ten pakiet udostЙpnia statyczn+ biliotekЙ hbhpdf dla kompilatora %{dname}.}
+%{?_with_curl:Ten pakiet udostЙpnia statyczn+ biliotekЙ CURL dla kompilatora %{dname}.}
 
 ## ADS RDD
 %{?_with_ads:%package ads}
@@ -316,7 +285,7 @@ statikus szerkesztИshez.
 
 %{?_with_mysql:%description -l pl mysql}
 %{?_with_mysql:%{dname} to kompatybilny z jЙzykiem CA-Cl*pper kompilator.}
-%{?_with_mysql:Ten pakiet udostЙpnia statyczn╠ biliotekЙ MYSQL dla kompilatora %{dname}.}
+%{?_with_mysql:Ten pakiet udostЙpnia statyczn+ biliotekЙ MYSQL dla kompilatora %{dname}.}
 
 ## pgsql library
 %{?_with_pgsql:%package pgsql}
@@ -331,7 +300,22 @@ statikus szerkesztИshez.
 
 %{?_with_pgsql:%description -l pl pgsql}
 %{?_with_pgsql:%{dname} to kompatybilny z jЙzykiem CA-Cl*pper kompilator.}
-%{?_with_pgsql:Ten pakiet udostЙpnia statyczn╠ biliotekЙ PGSQL dla kompilatora %{dname}.}
+%{?_with_pgsql:Ten pakiet udostЙpnia statyczn+ biliotekЙ PGSQL dla kompilatora %{dname}.}
+
+## firebird library
+%{?_with_firebird:%package firebird}
+%{?_with_firebird:Summary:        FireBird libarary for %{dname} compiler}
+%{?_with_firebird:Summary(pl):    Bilioteka FireBird dla kompilatora %{dname}}
+%{?_with_firebird:Group:          Development/Languages}
+%{?_with_firebird:Requires:       %{name} = %{?epoch:%{epoch}:}%{version}-%{release}}
+
+%{?_with_firebird:%description firebird}
+%{?_with_firebird:%{dname} is a Clipper compatible compiler.}
+%{?_with_firebird:This package provides %{dname} FireBird library for program linking.}
+
+%{?_with_firebird:%description -l pl firebird}
+%{?_with_firebird:%{dname} to kompatybilny z jЙzykiem CA-Cl*pper kompilator.}
+%{?_with_firebird:Ten pakiet udostЙpnia statyczn+ biliotekЙ FireBird dla kompilatora %{dname}.}
 
 ## gd library
 %{?_with_gd:%package gd}
@@ -346,14 +330,25 @@ statikus szerkesztИshez.
 
 %{?_with_gd:%description -l pl gd}
 %{?_with_gd:%{dname} to kompatybilny z jЙzykiem CA-Cl*pper kompilator.}
-%{?_with_gd:Ten pakiet udostЙpnia statyczn╠ biliotekЙ GD dla kompilatora %{dname}.}
+%{?_with_gd:Ten pakiet udostЙpnia statyczn+ biliotekЙ GD dla kompilatora %{dname}.}
+
+## qt library
+%{?_with_qt:%package qt}
+%{?_with_qt:Summary:        QT library bindings for %{dname} compiler}
+%{?_with_qt:Group:          Development/Languages}
+%{?_with_qt:Requires:       libqt4-devel %{name} = %{?epoch:%{epoch}:}%{version}-%{release}}
+
+%{?_with_qt:%description qt}
+%{?_with_qt:%{dname} is a Clipper compatible compiler.}
+%{?_with_qt:This package provides %{dname} QT libraries for program linking.}
+
 
 ######################################################################
 ## Preperation.
 ######################################################################
 
 %prep
-%setup
+%setup 
 rm -rf $RPM_BUILD_ROOT
 
 ######################################################################
@@ -362,13 +357,10 @@ rm -rf $RPM_BUILD_ROOT
 
 %build
 %{hb_env}
-case "`uname -m`" in
-    *[_@]64)
-        export C_USR="$C_USR -fPIC"
-        ;;
-esac
+export HB_BUILD_STRIP=all
+export HB_BUILD_SHARED=%{!?_with_static:yes}
 
-make -r
+make %{?_smp_mflags}
 
 ######################################################################
 ## Install.
@@ -379,64 +371,31 @@ make -r
 # Install harbour itself.
 
 %{hb_env}
-case "`uname -m`" in
-    *[_@]64)
-        export C_USR="$C_USR -fPIC"
-        ;;
-esac
 
-export _DEFAULT_BIN_DIR=$HB_BIN_INSTALL
-export _DEFAULT_INC_DIR=$HB_INC_INSTALL
-export _DEFAULT_LIB_DIR=$HB_LIB_INSTALL
-export HB_BIN_INSTALL=$RPM_BUILD_ROOT/$HB_BIN_INSTALL
-export HB_INC_INSTALL=$RPM_BUILD_ROOT/$HB_INC_INSTALL
-export HB_LIB_INSTALL=$RPM_BUILD_ROOT/$HB_LIB_INSTALL
+export HB_INST_PKGPREF=$RPM_BUILD_ROOT
+export HB_BUILD_STRIP=all
+export HB_BUILD_SHARED=%{!?_with_static:yes}
 
-mkdir -p $HB_BIN_INSTALL
-mkdir -p $HB_INC_INSTALL
-mkdir -p $HB_LIB_INSTALL
+# necessary for shared linked hbrun used to execute postinst.prg
+export LD_LIBRARY_PATH=$HB_INST_PKGPREF$HB_LIB_INSTALL
 
-make -r -i install
+make install %{?_smp_mflags}
 
-[ "%{?_with_allegro:1}" ]  || rm -f $HB_LIB_INSTALL/libgtalleg.a
-[ "%{?_without_gtcrs:1}" ] && rm -f $HB_LIB_INSTALL/libgtcrs.a
-[ "%{?_without_gtsln:1}" ] && rm -f $HB_LIB_INSTALL/libgtsln.a
+[ "%{?_with_allegro:1}" ]  || rm -f $HB_INST_PKGPREF$HB_LIB_INSTALL/libgtalleg.a
+[ "%{?_without_curses:1}" ] && rm -f $HB_INST_PKGPREF$HB_LIB_INSTALL/libgtcrs.a
+[ "%{?_without_slang:1}" ] && rm -f $HB_INST_PKGPREF$HB_LIB_INSTALL/libgtsln.a
+rm -f $HB_INST_PKGPREF$HB_LIB_INSTALL/liblibhpdf.a
+rm -f $HB_INST_PKGPREF$HB_LIB_INSTALL/liblibpng.a
+rm -f $HB_INST_PKGPREF$HB_LIB_INSTALL/libsqlite3.a
 
-# Keep the size of the binaries to a minimim.
-strip $HB_BIN_INSTALL/harbour
-# Keep the size of the libraries to a minimim.
-strip --strip-debug $HB_LIB_INSTALL/*
+mkdir -p $HB_INST_PKGPREF%{_mandir}/man1
+install -m644 doc/man/*.1* $HB_INST_PKGPREF%{_mandir}/man1/
 
-mkdir -p $RPM_BUILD_ROOT%{_mandir}/man1
-install -m644 doc/man/*.1* $RPM_BUILD_ROOT%{_mandir}/man1/
-
-mkdir -p $RPM_BUILD_ROOT/etc/harbour
-install -m644 source/rtl/gtcrs/hb-charmap.def $RPM_BUILD_ROOT/etc/harbour/hb-charmap.def
-cat > $RPM_BUILD_ROOT/etc/harbour.cfg <<EOF
-CC=gcc
-CFLAGS=-c -I$_DEFAULT_INC_DIR -O3
-VERBOSE=YES
-DELTMP=YES
-EOF
-
-# check if we should rebuild tools with shared libs
-if [ "%{!?_with_static:1}" ]
-then
-    export L_USR="${CC_L_USR} -L${HB_LIB_INSTALL} -l%{name} %{!?_without_gtcrs:-lncurses} %{!?_without_gtsln:-lslang} %{!?_without_gpm:-lgpm} %{!?_without_x11:-L/usr/X11R6/%{_lib} -lX11}"
-    export PRG_USR="\"-D_DEFAULT_INC_DIR='${_DEFAULT_INC_DIR}'\" ${PRG_USR}"
-
-    for utl in hbmake hbrun hbdoc
-    do
-        pushd utils/${utl}
-        rm -fR "./${HB_ARCHITECTURE}/${HB_COMPILER}"
-        make -r install
-        strip ${HB_BIN_INSTALL}/${utl}
-        popd
-    done
-fi
+mkdir -p $HB_INST_PKGPREF$HB_ETC_INSTALL
+install -m644 src/rtl/gtcrs/hb-charmap.def $HB_INST_PKGPREF$HB_ETC_INSTALL/hb-charmap.def
 
 # remove unused files
-rm -f ${HB_BIN_INSTALL}/{hbdoc,hbtest}
+rm -f $HB_INST_PKGPREF$HB_BIN_INSTALL/hbtest
 
 # Create a README file for people using this RPM.
 cat > doc/%{readme} <<EOF
@@ -474,8 +433,6 @@ All these scripts accept command line switches:
 -hwgui                  # link with HWGUI library (GTK+ interface)
 -l<libname>             # link with <libname> library
 -L<libpath>             # additional path to search for libraries
--fmstat                 # link with the memory statistics lib
--nofmstat               # do not link with the memory statistics lib (default)
 -[no]strip              # strip (no strip) binaries
 -main=<main_func>       # set the name of main program function/procedure.
                         # if not set then 'MAIN' is used or if it doesn't
@@ -582,14 +539,13 @@ rm -rf $RPM_BUILD_ROOT
 %doc ChangeLog*
 %doc doc/*.txt
 %doc doc/%{readme}
-%doc doc/en/
-%doc doc/es/
+%doc doc/en-EN/
 
-%dir /etc/harbour
-%verify(not md5 mtime) %config /etc/harbour.cfg
-%verify(not md5 mtime) %config /etc/harbour/hb-charmap.def
+%dir %{hb_etcdir}
+%verify(not md5 mtime) %config %{hb_etcdir}/hb-charmap.def
 %{_bindir}/harbour
 %{_bindir}/hbpp
+%{_bindir}/hb-mkdyn
 %{_bindir}/hb-mkslib
 %{_bindir}/%{hb_pref}-build
 %{_bindir}/%{hb_pref}cc
@@ -598,7 +554,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/%{hb_pref}mk
 #%{_bindir}/hbtest
 %{_bindir}/hbrun
-%{_bindir}/hbmake
+%{_bindir}/hbi18n
+%{_bindir}/hbformat
+%{_bindir}/hbmk2
+%verify(not md5 mtime) %config %{_bindir}/hbmk.cfg
 %{_mandir}/man1/*.1*
 %dir %{_includedir}/%{name}
 %attr(644,root,root) %{_includedir}/%{name}/*
@@ -610,41 +569,45 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/%{name}/libhbcommon.a
 %{_libdir}/%{name}/libhbcplr.a
 %{_libdir}/%{name}/libhbdebug.a
-%{_libdir}/%{name}/libhbfm.a
 %{_libdir}/%{name}/librddfpt.a
 %{_libdir}/%{name}/librddcdx.a
 %{_libdir}/%{name}/librddntx.a
+%{_libdir}/%{name}/librddnsx.a
 %{_libdir}/%{name}/libgt*.a
 %{_libdir}/%{name}/libhblang.a
 %{_libdir}/%{name}/libhbmacro.a
-%{_libdir}/%{name}/libhbpcre.a
-%{_libdir}/%{name}/libhbzlib.a
 %{_libdir}/%{name}/libhbextern.a
 %{_libdir}/%{name}/libhbnulrdd.a
+%{_libdir}/%{name}/libhbnortl.a
 %{_libdir}/%{name}/libhbpp.a
 %{_libdir}/%{name}/libhbrdd.a
 %{_libdir}/%{name}/libhbhsx.a
 %{_libdir}/%{name}/libhbsix.a
 %{_libdir}/%{name}/libhbrtl.a
 %{_libdir}/%{name}/libhbvm.a
+%{_libdir}/%{name}/libhbvmmt.a
 %{_libdir}/%{name}/libhbusrrdd.a
+%{_libdir}/%{name}/libhbuddall.a
+%{?_with_localzlib:%{_libdir}/%{name}/libhbzlib.a}
+%{?_with_localpcre:%{_libdir}/%{name}/libhbpcre.a}
 
 %files contrib
 %defattr(644,root,root,755)
 %dir %{_libdir}/%{name}
-%{!?_without_nf: %{_libdir}/%{name}/libhbnf.a}
+%{_libdir}/%{name}/libhbnf.a
 %{_libdir}/%{name}/libhbbtree.a
 %{_libdir}/%{name}/libhbmisc.a
 %{_libdir}/%{name}/libhbmzip.a
+%{_libdir}/%{name}/libhbnetio.a
 %{_libdir}/%{name}/libhbct.a
-%{_libdir}/%{name}/libhbtip.a
+%{_libdir}/%{name}/libhbtip*.a
 %{_libdir}/%{name}/libxhb.a
-%{_libdir}/%{name}/libhbvpdf.a
+%{_libdir}/%{name}/libhbhpdf.a
 %{_libdir}/%{name}/libhbgt.a
 %{_libdir}/%{name}/libhbbmcdx.a
 %{_libdir}/%{name}/libhbclipsm.a
-%{_libdir}/%{name}/libhbmsql.a
-%{_libdir}/%{name}/libhbsqlit3.a
+%{_libdir}/%{name}/librddsql.a
+%{_libdir}/%{name}/libhbsms.a
 %{_libdir}/%{name}/libhbtpathy.a
 %{_libdir}/%{name}/libhbziparc.a
 
@@ -654,42 +617,55 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/%{name}/*.so
 %{_libdir}/*.so
 
-%{?_with_odbc:%files odbc}
-%{?_with_odbc:%defattr(644,root,root,755)}
-%{?_with_odbc:%dir %{_libdir}/%{name}}
-%{?_with_odbc:%{_libdir}/%{name}/libhbodbc.a}
-
 %{?_with_curl:%files curl}
 %{?_with_curl:%defattr(644,root,root,755)}
 %{?_with_curl:%dir %{_libdir}/%{name}}
 %{?_with_curl:%{_libdir}/%{name}/libhbcurl.a}
-
-%{?_with_hbhpdf:%files hbhpdf}
-%{?_with_hbhpdf:%defattr(644,root,root,755)}
-%{?_with_hbhpdf:%dir %{_libdir}/%{name}}
-%{?_with_hbhpdf:%{_libdir}/%{name}/libhbhpdf.a}
 
 %{?_with_ads:%files ads}
 %{?_with_ads:%defattr(644,root,root,755)}
 %{?_with_ads:%dir %{_libdir}/%{name}}
 %{?_with_ads:%{_libdir}/%{name}/librddads.a}
 
+%{?_with_odbc:%files odbc}
+%{?_with_odbc:%defattr(644,root,root,755)}
+%{?_with_odbc:%dir %{_libdir}/%{name}}
+%{?_with_odbc:%{_libdir}/%{name}/libhbodbc.a}
+%{?_with_odbc:%{_libdir}/%{name}/libsddodbc.a}
+
 %{?_with_mysql:%files mysql}
 %{?_with_mysql:%defattr(644,root,root,755)}
 %{?_with_mysql:%dir %{_libdir}/%{name}}
 %{?_with_mysql:%{_libdir}/%{name}/libhbmysql.a}
+%{?_with_mysql:%{_libdir}/%{name}/libsddmy.a}
 
 %{?_with_pgsql:%files pgsql}
 %{?_with_pgsql:%defattr(644,root,root,755)}
 %{?_with_pgsql:%dir %{_libdir}/%{name}}
 %{?_with_pgsql:%{_libdir}/%{name}/libhbpgsql.a}
+%{?_with_pgsql:%{_libdir}/%{name}/libsddpg.a}
+
+%{?_with_firebird:%files firebird}
+%{?_with_firebird:%defattr(644,root,root,755)}
+%{?_with_firebird:%dir %{_libdir}/%{name}}
+%{?_with_firebird:%{_libdir}/%{name}/libhbfbird.a}
+%{?_with_firebird:%{_libdir}/%{name}/libsddfb.a}
 
 %{?_with_gd:%files gd}
 %{?_with_gd:%defattr(644,root,root,755)}
 %{?_with_gd:%dir %{_libdir}/%{name}}
 %{?_with_gd:%{_libdir}/%{name}/libhbgd.a}
 
-######################################################################
+%{?_with_qt:%files qt}
+%{?_with_qt:%defattr(644,root,root,755)}
+%{?_with_qt:%dir %{_libdir}/%{name}}
+%{?_with_qt:%{_libdir}/%{name}/libhbqt.a}
+%{?_with_qt:%{_libdir}/%{name}/libhbqtcore.a}
+%{?_with_qt:%{_libdir}/%{name}/libhbqtgui.a}
+%{?_with_qt:%{_libdir}/%{name}/libhbqtnetwork.a}
+%{?_with_qt:%{_libdir}/%{name}/libhbxbp.a}
+
+####################################################################
 ## Spec file Changelog.
 ######################################################################
 
