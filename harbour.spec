@@ -22,6 +22,8 @@
 %define hb_env   %{hb_plat} ; %{hb_cc} ; %{hb_cflag} ; %{hb_lflag} ; %{hb_gpm} ; %{hb_crs} ; %{hb_sln} ; %{hb_x11} ; %{hb_local} ; %{hb_bdir} ; %{hb_idir} ; %{hb_ldir} ; %{hb_edir} ; %{hb_ctrb} ; %{hb_cmrc}
 %define hb_host  www.harbour-project.org
 %define readme   README.RPM
+%define libname  %mklibname 2
+%define libdevname %mklibname 2 -d
 
 Summary:        Free software Clipper compatible compiler
 Name:           harbour
@@ -47,12 +49,12 @@ See README.RPM in the documentation directory for information specific to
 this RPM distribution.
 
 
-%package lib
+%package %{libname}
 Summary:        Shared runtime libaries for %{dname} compiler
 Group:          Development/Other
 #Provides:       lib%{name}.so lib%{name}mt.so
 
-%description lib
+%description %{libname}
 %{dname} is a Clipper compatible compiler.
 This package provides %{dname} runtime shared libraries for programs
 linked dynamically.
@@ -434,11 +436,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/%{name}/libhbsms.a
 %{_libdir}/%{name}/libhbtpathy.a
 %{_libdir}/%{name}/libhbziparc.a
-%{_libdir}/%{name}/libsddmy.a
-%{_libdir}/%{name}/libsddodbc.a
-%{_libdir}/%{name}/libsddpg.a
+#%{_libdir}/%{name}/libsddmy.a
+#%{_libdir}/%{name}/libsddodbc.a
+#%{_libdir}/%{name}/libsddpg.a
 
-%files lib
+%files %{libname}
 %defattr(755,root,root,755)
 %dir %{_libdir}/%{name}
 %{_libdir}/%{name}/*.so
