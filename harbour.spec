@@ -1,4 +1,4 @@
-%define name     harbour
+#define name     harbour
 %define dname    Harbour
 %define version  2.0.0
 %define releasen 0
@@ -493,3 +493,7 @@ rm -rf $RPM_BUILD_ROOT
 %{?_with_qt:%{_libdir}/%{name}/libhbqtgui.a}
 %{?_with_qt:%{_libdir}/%{name}/libhbqtnetwork.a}
 %{?_with_qt:%{_libdir}/%{name}/libhbxbp.a}
+
+%{_libdir}/%{name}/libsddmy.a
+%{_libdir}/%{name}/libsddpg.a
+%{_libdir}/%{name}/libsddodbc.a
