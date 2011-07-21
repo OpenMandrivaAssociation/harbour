@@ -24,12 +24,11 @@
 %define readme   README.RPM
 
 Summary:        Free software Clipper compatible compiler
-Name:           %{name}
+Name:           harbour
 Version:        %{version}
 Release:        %mkrel 1
 License:        GPL (plus exception)
 Group:          Development/Other
-Vendor:         %{hb_host}
 URL:            http://%{hb_host}/
 Source:         %{name}-%{version}.tar.bz2
 #BuildPrereq:    gcc binutils bash %{!?_without_curses: ncurses-devel} %{!?_without_gpm: gpm-devel}
