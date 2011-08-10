@@ -34,7 +34,7 @@ Group:          Development/Other
 URL:            http://%{hb_host}/
 Source:         %{name}-%{version}.tar.bz2
 #BuildPrereq:    gcc binutils bash %{!?_without_curses: ncurses-devel} %{!?_without_gpm: gpm-devel}
-Requires:       gcc binutils bash sh-utils %{name}-lib = %{?epoch:%{epoch}:}%{version}-%{release}
+#Requires:       gcc binutils bash sh-utils %{name}-lib = %{?epoch:%{epoch}:}%{version}-%{release}
 #Provides:       %{name} harbour
 BuildRoot:      %{_tmppath}/%{name}_%{version}-build
 
@@ -494,6 +494,6 @@ rm -rf $RPM_BUILD_ROOT
 %{?_with_qt:%{_libdir}/%{name}/libhbqtnetwork.a}
 %{?_with_qt:%{_libdir}/%{name}/libhbxbp.a}
 
-%{_libdir}/%{name}/libsddmy.a
+#%{_libdir}/%{name}/libsddmy.a
 %{_libdir}/%{name}/libsddpg.a
 %{_libdir}/%{name}/libsddodbc.a
