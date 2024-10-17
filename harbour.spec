@@ -82,7 +82,7 @@ Release:        %{releasen}%{platform}
 License:        GPL (plus exception)
 Group:          Development/Languages
 Vendor:         %{hb_host}
-URL:            http://%{hb_host}/
+URL:            https://%{hb_host}/
 Source:         %{name}-%{version}.src.tar.gz
 Patch:		hbcurl.c.patch
 Packager:       PrzemysЁaw Czerpak <druzus@polbox.com> Luiz Rafael Culik Guimaraes <culikr@uol.com.br>

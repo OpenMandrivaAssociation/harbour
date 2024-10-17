@@ -31,7 +31,7 @@ Version:        %{version}
 Release:        %mkrel 1
 License:        GPL (plus exception)
 Group:          Development/Other
-URL:            http://%{hb_host}/
+URL:            https://%{hb_host}/
 Source:         %{name}-%{version}.tar.bz2
 Patch:		hbcurl.c.patch
 #BuildPrereq:    gcc binutils bash %{!?_without_curses: ncurses-devel} %{!?_without_gpm: gpm-devel}
