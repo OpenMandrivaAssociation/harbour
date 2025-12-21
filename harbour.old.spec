@@ -41,6 +41,8 @@ BuildRoot:      %{_tmppath}/%{name}_%{version}-build
 
 %define         _noautoreq    'libharbour.*'
 
+BuildRequires:	harbour.spec
+BuildRequires:	make
 %description
 %{dname} is a CA-Cl*pper compatible compiler for multiple platforms. This
 package includes a compiler, pre-processor, header files, virtual machine
